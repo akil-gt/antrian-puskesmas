@@ -93,6 +93,16 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleDeleteUser = async (id) => {
+    if (!confirm('Yakin ingin menghapus pasien ini? Semua data pasien akan hilang permanen.')) return;
+    try {
+      await admin.deleteUser(id);
+      setToast({ message: 'Pasien berhasil dihapus', type: 'success' });
+    } catch (err) {
+      setToast({ message: err.message, type: 'error' });
+    }
+  };
+
   const allQueues = queueData?.all || [];
   const filteredQueues = statusFilter === 'all' ? allQueues : allQueues.filter((q) => q.status === statusFilter);
 
@@ -107,6 +117,26 @@ export default function AdminDashboard() {
             <svg className="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
             Total: {queueData?.totalQueue || 0} antrian
           </span>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Antrian</p>
+            <p className="text-2xl font-bold text-gray-900 mt-1">{queueData?.totalQueue || 0}</p>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Menunggu</p>
+            <p className="text-2xl font-bold text-yellow-600 mt-1">{queueData?.menunggu?.length || 0}</p>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Dipanggil / Berobat</p>
+            <p className="text-2xl font-bold text-blue-600 mt-1">{(queueData?.dipanggil?.length || 0) + (queueData?.sedangBerobat?.length || 0)}</p>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Pasien</p>
+            <p className="text-2xl font-bold text-primary-600 mt-1">{userData?.users?.length || 0}</p>
+          </div>
         </div>
 
         {/* Tabs */}
@@ -336,6 +366,7 @@ export default function AdminDashboard() {
                         <th className="text-left px-4 sm:px-6 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">Username</th>
                         <th className="text-left px-4 sm:px-6 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">Password</th>
                         <th className="text-left px-4 sm:px-6 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">Terdaftar</th>
+                        <th className="text-right px-4 sm:px-6 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">Aksi</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -368,6 +399,11 @@ export default function AdminDashboard() {
                           </td>
                           <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-400 text-xs">
                             {new Date(u.createdAt).toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' })}
+                          </td>
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-right">
+                            <button onClick={() => handleDeleteUser(u.id)} className="text-xs bg-red-100 text-red-600 hover:bg-red-200 font-semibold py-1.5 px-3 rounded-lg transition-all border border-red-200">
+                              Hapus
+                            </button>
                           </td>
                         </tr>
                       ))}

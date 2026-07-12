@@ -2,10 +2,13 @@ import fs from 'fs';
 import path from 'path';
 import type { QueueData, User, AdminData } from '@/types';
 
-const DATA_DIR = path.join(process.cwd(), 'data');
-const ARCHIVES_DIR = process.env.VERCEL
-  ? path.join('/tmp', 'archives')
-  : path.join(DATA_DIR, 'archives');
+const SEED_DIR = path.join(process.cwd(), 'data');
+
+const DATA_DIR = process.env.VERCEL
+  ? path.join('/tmp', 'data')
+  : SEED_DIR;
+
+const ARCHIVES_DIR = path.join(DATA_DIR, 'archives');
 
 const globalForData = globalThis as typeof globalThis & {
   __queues?: QueueData;
@@ -13,8 +16,24 @@ const globalForData = globalThis as typeof globalThis & {
   __admin?: AdminData;
 };
 
+function seedFile(name: string): void {
+  const src = path.join(SEED_DIR, name);
+  const dest = path.join(DATA_DIR, name);
+  if (!fs.existsSync(dest) && fs.existsSync(src)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.copyFileSync(src, dest);
+  }
+}
+
 function initFromFiles() {
   if (globalForData.__queues) return;
+
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+  fs.mkdirSync(ARCHIVES_DIR, { recursive: true });
+
+  seedFile('queues.json');
+  seedFile('users.json');
+  seedFile('admin.json');
 
   const queuesFile = path.join(DATA_DIR, 'queues.json');
   const usersFile = path.join(DATA_DIR, 'users.json');
@@ -41,10 +60,15 @@ function initFromFiles() {
   } else {
     globalForData.__admin = { username: 'admin', password: 'admin123' };
   }
+}
 
-  if (!fs.existsSync(ARCHIVES_DIR)) {
-    fs.mkdirSync(ARCHIVES_DIR, { recursive: true });
-  }
+function persist(type: 'queues' | 'users' | 'admin'): void {
+  const file = path.join(DATA_DIR, `${type}.json`);
+  let data: unknown;
+  if (type === 'queues') data = globalForData.__queues;
+  else if (type === 'users') data = globalForData.__users;
+  else if (type === 'admin') data = globalForData.__admin;
+  fs.writeFileSync(file, JSON.stringify(data, null, 2));
 }
 
 export function getQueues(): QueueData {
@@ -58,6 +82,7 @@ export function getQueues(): QueueData {
 
 export function saveQueues(data: QueueData): void {
   globalForData.__queues = data;
+  persist('queues');
 }
 
 export function getUsers(): User[] {
@@ -67,6 +92,7 @@ export function getUsers(): User[] {
 
 export function saveUsers(users: User[]): void {
   globalForData.__users = users;
+  persist('users');
 }
 
 export function getAdmin(): AdminData {
@@ -76,6 +102,7 @@ export function getAdmin(): AdminData {
 
 export function saveAdmin(data: AdminData): void {
   globalForData.__admin = data;
+  persist('admin');
 }
 
 function archiveCurrentQueues(): void {
@@ -106,6 +133,7 @@ export function resetQueues(): void {
   archiveCurrentQueues();
   const today = new Date().toISOString().split('T')[0];
   globalForData.__queues = { date: today, counter: 0, queues: [] };
+  persist('queues');
 }
 
 export function isQueueExpired(queue: { status: string; calledAt: string | null }): boolean {

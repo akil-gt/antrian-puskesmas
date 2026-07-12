@@ -50,6 +50,7 @@ export const admin = {
   deleteQueue: (id) => request(`/admin/queue/${id}`, { method: 'DELETE' }),
   users: () => request('/admin/users'),
   updatePassword: (id, password) => request(`/admin/user/${id}/password`, { method: 'PUT', body: { password } }),
+  deleteUser: (id) => request(`/admin/user/${id}`, { method: 'DELETE' }),
   archives: () => request('/admin/archives'),
   archive: (date) => request(`/admin/archives/${date}`),
 };
