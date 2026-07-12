@@ -22,7 +22,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ message: 'Login admin berhasil', token }, { status: 200 });
   } catch (err) {
-    console.error('Admin login error:', err);
     if (err instanceof AuthError) {
       return NextResponse.json({ error: err.message }, { status: err.status });
     }
