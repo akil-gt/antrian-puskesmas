@@ -129,9 +129,15 @@ export default function HomePage() {
             <div>
               <h4 className="font-semibold text-white mb-3 text-sm uppercase tracking-wider">Kontak</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li>Jl. Contoh No. 123</li>
-                <li>Makassar, Sulawesi Selatan</li>
-                <li>(0411) 123456</li>
+                <li>Jl. Abdullah Daeng Sirua No.158</li>
+                <li>Masale, Kec. Panakkukang</li>
+                <li>Kota Makassar, Sulawesi Selatan 90231</li>
+                <li>(0411) 450592</li>
+                <li>
+                  <a href="https://maps.app.goo.gl/yV6pFRLwQX6uVgNt5" target="_blank" rel="noopener noreferrer" className="text-primary-400 hover:text-primary-300 transition-colors underline underline-offset-2">
+                    Lihat di Google Maps
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
