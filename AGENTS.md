@@ -9,6 +9,7 @@ Aplikasi antrian digital untuk Puskesmas Tamamaung. Full-stack Next.js 14 dengan
 - **Auth**: JWT (jsonwebtoken), bcryptjs
 - **Database**: In-memory + data/*.json (deployed as files)
 - **Components**: Navbar, QueueCard, StatsGrid, StatusBadge, CountdownTimer, Spinner, Toast
+- **SMS Gateway**: Fonnte (via FONNTE_API_KEY)
 
 ## Project Structure
 ```
@@ -37,6 +38,7 @@ antrian-puskesmas/
 │   │       ├── auth/login/route.ts
 │   │       ├── auth/register/route.ts
 │   │       ├── auth/admin/login/route.ts
+│   │       ├── auth/send-otp/route.ts
 │   │       ├── queue/take/route.ts
 │   │       ├── queue/my-queue/route.ts
 │   │       ├── queue/monitor/route.ts
@@ -44,8 +46,11 @@ antrian-puskesmas/
 │   │       ├── admin/queue/[id]/route.ts (DELETE)
 │   │       ├── admin/queue/[id]/call/route.ts
 │   │       ├── admin/queue/[id]/status/route.ts
+│   │       ├── admin/queue/[id]/requeue/route.ts
 │   │       ├── admin/users/route.ts
+│   │       ├── admin/user/[id]/route.ts (DELETE)
 │   │       ├── admin/user/[id]/password/route.ts
+│   │       ├── admin/user/[id]/reset-queue/route.ts
 │   │       ├── admin/archives/route.ts
 │   │       └── admin/archives/[date]/route.ts
 │   ├── components/ (Navbar.tsx, QueueCard.tsx, StatsGrid.js, etc.)
@@ -54,7 +59,10 @@ antrian-puskesmas/
 │   ├── lib/
 │   │   ├── api.js (frontend API client)
 │   │   ├── route-auth.ts (JWT helper for API routes)
-│   │   └── route-db.ts (in-memory data store)
+│   │   ├── route-db.ts (in-memory data store)
+│   │   ├── rate-limit.ts (in-memory rate limiter)
+│   │   ├── validation.ts (input validation)
+│   │   └── sms.ts (Fonnte SMS gateway)
 │   └── types/index.ts
 ├── next.config.js
 ├── tailwind.config.js
@@ -71,9 +79,10 @@ antrian-puskesmas/
 | `npm start` | next start -p 3000 |
 
 ## API Endpoints (Next.js API Routes)
-- `POST /api/auth/register` — Register
-- `POST /api/auth/login` — Login
-- `POST /api/auth/admin/login` — Admin login
+- `POST /api/auth/register` — Register (rate limited: 5x/menit)
+- `POST /api/auth/login` — Login (rate limited: 5x/menit)
+- `POST /api/auth/admin/login` — Admin login (rate limited: 5x/menit)
+- `POST /api/auth/send-otp` — Kirim OTP via Fonnte (rate limited: 3x/menit)
 - `POST /api/queue/take` — Ambil antrian (auth)
 - `GET /api/queue/my-queue` — Antrian saya (auth)
 - `GET /api/queue/monitor` — Monitor publik
@@ -95,10 +104,20 @@ antrian-puskesmas/
 
 ## Auth
 - **Admin**: admin / admin123
-- **JWT**: 24 jam, bcrypt hashing (kompatibel dengan password lama plaintext)
+- **JWT**: 24 jam, bcrypt only (no plaintext fallback)
+- **Rate limiting**: Login 5x/menit per IP, OTP 3x/menit per IP
 
-## Deployment
+## Security Improvements (July 2026)
+1. **Security Headers** — CSP, HSTS (63072000s), X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Permissions-Policy, Referrer-Policy di `next.config.js`
+2. **JWT Secret** — Wajib via `JWT_SECRET` env, hardcoded fallback dihapus
+3. **Plaintext Password** — Semua fallback plaintext dihapus, bcrypt-only untuk login dan admin
+4. **Rate Limiting** — `src/lib/rate-limit.ts` melindungi login, register, send-otp dari brute force
+5. **Input Validation** — `src/lib/validation.ts` dengan validasi NIK (16 digit), nomor HP, username, password (min 6)
+6. **Admin Password** — Sudah di-hash bcrypt di `data/admin.json`
+7. **SMS OTP** — Terintegrasi dengan Fonnte via `FONNTE_API_KEY`
+
+## Deployment (Vercel)
 1. Push ke GitHub
 2. Import di Vercel (https://vercel.com)
-3. Environment variable: JWT_SECRET (opsional, ada default)
+3. Set environment variables: JWT_SECRET, FONNTE_API_KEY, MYSQL_*
 4. Data akan dibaca dari data/*.json saat cold start
