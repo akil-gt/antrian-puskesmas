@@ -43,7 +43,7 @@ export default function HomePage() {
             Puskesmas Tamamaung
           </p>
           <p className="text-base text-white/70 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Ambil nomor antrian secara online, pantau status secara real-time, dan hindari antrean panjang.
+            Ambil nomor antrian secara online, pantau status secara real-time. Sehat dimulai dari pelayanan yang cepat dan berkualitas
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
