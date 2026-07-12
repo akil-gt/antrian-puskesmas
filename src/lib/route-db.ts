@@ -25,6 +25,28 @@ function seedFile(name: string): void {
   }
 }
 
+function readJsonFile<T>(filePath: string, fallback: T): T {
+  try {
+    if (!fs.existsSync(filePath)) return fallback;
+    const content = fs.readFileSync(filePath, 'utf8');
+    if (!content.trim()) return fallback;
+    return JSON.parse(content);
+  } catch {
+    return fallback;
+  }
+}
+
+function writeJsonFile(filePath: string, data: unknown): void {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  const json = JSON.stringify(data, null, 2);
+  fs.writeFileSync(filePath, json, 'utf8');
+  // Verify write
+  const verify = fs.readFileSync(filePath, 'utf8');
+  if (verify !== json) {
+    throw new Error(`Write verification failed for ${filePath}`);
+  }
+}
+
 function initFromFiles() {
   if (globalForData.__queues) return;
 
@@ -39,23 +61,9 @@ function initFromFiles() {
   const usersFile = path.join(DATA_DIR, 'users.json');
   const adminFile = path.join(DATA_DIR, 'admin.json');
 
-  try {
-    globalForData.__queues = JSON.parse(fs.readFileSync(queuesFile, 'utf8'));
-  } catch {
-    globalForData.__queues = { date: new Date().toISOString().split('T')[0], counter: 0, queues: [] };
-  }
-
-  try {
-    globalForData.__users = JSON.parse(fs.readFileSync(usersFile, 'utf8'));
-  } catch {
-    globalForData.__users = [];
-  }
-
-  try {
-    globalForData.__admin = JSON.parse(fs.readFileSync(adminFile, 'utf8'));
-  } catch {
-    globalForData.__admin = { username: 'admin', password: 'admin123' };
-  }
+  globalForData.__queues = readJsonFile(queuesFile, { date: new Date().toISOString().split('T')[0], counter: 0, queues: [] });
+  globalForData.__users = readJsonFile(usersFile, []);
+  globalForData.__admin = readJsonFile(adminFile, { username: 'admin', password: 'admin123' });
 }
 
 function persist(type: 'queues' | 'users' | 'admin'): void {
@@ -64,7 +72,13 @@ function persist(type: 'queues' | 'users' | 'admin'): void {
   if (type === 'queues') data = globalForData.__queues;
   else if (type === 'users') data = globalForData.__users;
   else if (type === 'admin') data = globalForData.__admin;
-  fs.writeFileSync(file, JSON.stringify(data, null, 2));
+  writeJsonFile(file, data);
+
+  // Sync to seed file for local development (persists across restarts)
+  if (!process.env.VERCEL) {
+    const seedFile = path.join(SEED_DIR, `${type}.json`);
+    writeJsonFile(seedFile, data);
+  }
 }
 
 export function getQueues(): QueueData {
@@ -107,7 +121,7 @@ function archiveCurrentQueues(): void {
   fs.mkdirSync(ARCHIVES_DIR, { recursive: true });
   const archiveFile = path.join(ARCHIVES_DIR, `${q.date}.json`);
   if (!fs.existsSync(archiveFile)) {
-    fs.writeFileSync(archiveFile, JSON.stringify(q, null, 2));
+    writeJsonFile(archiveFile, q);
   }
 }
 
@@ -122,7 +136,7 @@ export function getArchiveList(): string[] {
 export function getArchive(date: string): QueueData | null {
   const file = path.join(ARCHIVES_DIR, `${date}.json`);
   if (!fs.existsSync(file)) return null;
-  return JSON.parse(fs.readFileSync(file, 'utf8'));
+  return readJsonFile(file, null);
 }
 
 export function resetQueues(): void {

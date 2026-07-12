@@ -1,29 +1,18 @@
 import { AuthError, verifyAdmin } from '@/lib/route-auth';
-import { getQueues, saveQueues, getUsers, isQueueExpired } from '@/lib/route-db';
+import { getQueues } from '@/lib/queries/queues';
+import { getUsers } from '@/lib/queries/users';
 import { NextRequest, NextResponse } from 'next/server';
-import type { User } from '@/types';
 
 export async function GET(request: NextRequest) {
   try {
     verifyAdmin(request);
-    const users = getUsers();
-    const userMap = new Map<string, User>();
+    const users = await getUsers();
+    const userMap = new Map<string, typeof users[0]>();
     for (const user of users) {
       userMap.set(user.id, user);
     }
 
-    const data = getQueues();
-    let changed = false;
-    for (const q of data.queues) {
-      if (isQueueExpired(q)) {
-        q.status = 'hangus';
-        q.calledExpired = true;
-        changed = true;
-      }
-    }
-    if (changed) {
-      saveQueues(data);
-    }
+    const data = await getQueues();
 
     const all = data.queues.map((q) => {
       const user = userMap.get(q.userId);
@@ -51,6 +40,7 @@ export async function GET(request: NextRequest) {
     if (err instanceof AuthError) {
       return NextResponse.json({ error: err.message }, { status: err.status });
     }
+    console.error('Admin queues error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

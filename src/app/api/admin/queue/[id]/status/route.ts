@@ -1,5 +1,5 @@
 import { AuthError, verifyAdmin } from '@/lib/route-auth';
-import { getQueues, saveQueues } from '@/lib/route-db';
+import { updateQueueStatus } from '@/lib/queries/queues';
 import { NextRequest, NextResponse } from 'next/server';
 
 const validStatuses = ['menunggu', 'dipanggil', 'sedang_berobat', 'selesai', 'hangus'];
@@ -14,28 +14,20 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ error: 'Status tidak valid' }, { status: 400 });
     }
 
-    const data = getQueues();
-    const queue = data.queues.find((q) => q.id === id);
-
-    if (!queue) {
+    const calledAt = status === 'dipanggil' ? new Date().toISOString() : null;
+    
+    const updated = await updateQueueStatus(id, status, calledAt);
+    
+    if (!updated) {
       return NextResponse.json({ error: 'Antrian tidak ditemukan' }, { status: 404 });
     }
 
-    queue.status = status;
-
-    if (status === 'dipanggil') {
-      queue.calledAt = new Date().toISOString();
-    } else if (status === 'selesai' || status === 'hangus') {
-      queue.calledAt = null;
-    }
-
-    saveQueues(data);
-
-    return NextResponse.json({ message: 'Status berhasil diperbarui', queue }, { status: 200 });
+    return NextResponse.json({ message: 'Status berhasil diperbarui' }, { status: 200 });
   } catch (err) {
     if (err instanceof AuthError) {
       return NextResponse.json({ error: err.message }, { status: err.status });
     }
+    console.error('Update status error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -1,24 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { AuthError, verifyToken } from '@/lib/route-auth';
-import { getQueues, saveQueues, isQueueExpired } from '@/lib/route-db';
+import { getQueueByUserId, updateQueueStatus } from '@/lib/queries/queues';
 
 export async function GET(req: NextRequest) {
   try {
     const user = verifyToken(req);
-    const data = getQueues();
+    const myQueue = await getQueueByUserId(user.id);
 
-    let myQueue = data.queues
-      .filter((q) => q.userId === user.id)
-      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0] || null;
-
-    if (myQueue && isQueueExpired(myQueue)) {
-      myQueue.status = 'hangus';
-      myQueue.calledExpired = true;
-      const idx = data.queues.findIndex((q) => q.id === myQueue!.id);
-      if (idx !== -1) {
-        data.queues[idx] = myQueue;
+    if (myQueue && myQueue.status === 'dipanggil' && myQueue.calledAt) {
+      const elapsed = (Date.now() - new Date(myQueue.calledAt).getTime()) / (1000 * 60);
+      if (elapsed > 5) {
+        await updateQueueStatus(myQueue.id, 'hangus', null);
+        return NextResponse.json({ queue: { ...myQueue, status: 'hangus', calledExpired: true } }, { status: 200 });
       }
-      saveQueues(data);
     }
 
     return NextResponse.json({ queue: myQueue }, { status: 200 });
@@ -26,6 +20,7 @@ export async function GET(req: NextRequest) {
     if (err instanceof AuthError) {
       return NextResponse.json({ error: err.message }, { status: err.status });
     }
+    console.error('My queue error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
