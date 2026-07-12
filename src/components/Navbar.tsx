@@ -51,7 +51,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
               </>
             ) : user ? (
               <>
-                <Link href="/patient" className="btn-outline !py-1.5 !px-3 text-xs sm:text-sm">Antrian Saya</Link>
+                <Link href="/patient" className="btn-outline !py-1.5 !px-3 text-xs sm:text-sm max-w-[90px] sm:max-w-none truncate">Antrian Saya</Link>
                 <button onClick={logoutUser} className="btn-outline !py-1.5 !px-3 text-xs sm:text-sm">Logout</button>
               </>
             ) : (

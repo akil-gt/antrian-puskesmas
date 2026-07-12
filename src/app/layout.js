@@ -1,5 +1,8 @@
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
+import dynamic from 'next/dynamic';
+
+const PWARegister = dynamic(() => import('@/components/PWARegister'), { ssr: false });
 
 export const metadata = {
   title: 'Antrian Digital - Puskesmas Tamamaung',
@@ -25,7 +28,10 @@ export default function RootLayout({ children }) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
       <body className="min-h-screen bg-gray-50">
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <PWARegister />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

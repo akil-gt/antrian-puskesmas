@@ -35,7 +35,7 @@ export default function Toast({
 
   return (
     <div
-      className={`fixed top-4 right-4 z-50 transition-all duration-300 ${
+      className={`fixed top-4 left-4 right-4 sm:left-auto sm:right-4 z-50 transition-all duration-300 sm:max-w-sm ${
         visible
           ? "opacity-100 translate-y-0"
           : "opacity-0 -translate-y-2"

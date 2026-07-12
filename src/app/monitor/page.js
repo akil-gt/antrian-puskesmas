@@ -50,7 +50,7 @@ export default function MonitorPage() {
         {/* Current Number - Big Display */}
         <div className="text-center mb-8 animate-fade-in">
           <p className="text-sm text-gray-400 mb-2 uppercase tracking-wider">Nomor Sedang Dipanggil</p>
-          <p className="text-8xl md:text-9xl font-extrabold text-primary-400 animate-pulse-slow">
+          <p className="text-7xl md:text-9xl font-extrabold text-primary-400 animate-pulse-slow">
             {loading ? '---' : data?.currentNumber || '---'}
           </p>
         </div>

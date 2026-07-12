@@ -30,7 +30,7 @@ export default function QueueCard({ queue, showName = true, large = false }: Que
         >
           {queue.nomor}
         </span>
-        {showName && <span className="text-sm text-gray-600">{queue.nama}</span>}
+        {showName && <span className="text-sm text-gray-600 truncate max-w-[120px]">{queue.nama}</span>}
       </div>
     </div>
   );

@@ -221,8 +221,8 @@ export default function AdminDashboard() {
                       <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                         <th className="text-left px-4 sm:px-6 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">Nomor</th>
                         <th className="text-left px-4 sm:px-6 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">Nama</th>
-                        <th className="text-left px-4 sm:px-6 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">NIK</th>
-                        <th className="text-left px-4 sm:px-6 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">No. HP</th>
+                        <th className="text-left px-4 sm:px-6 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider hidden md:table-cell">NIK</th>
+                        <th className="text-left px-4 sm:px-6 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider hidden md:table-cell">No. HP</th>
                         <th className="text-left px-4 sm:px-6 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">Status</th>
                         <th className="text-left px-4 sm:px-6 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">Waktu</th>
                         <th className="text-right px-4 sm:px-6 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">Aksi</th>
@@ -239,8 +239,8 @@ export default function AdminDashboard() {
                           <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                             <span className="font-medium text-gray-900">{q.nama}</span>
                           </td>
-                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-500 font-mono text-xs">{q.nik}</td>
-                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-500">{q.noHp}</td>
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-500 font-mono text-xs hidden md:table-cell">{q.nik}</td>
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-500 hidden md:table-cell">{q.noHp}</td>
                           <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                             <StatusBadge status={q.status} />
                             {q.status === 'dipanggil' && q.calledAt && (
@@ -385,9 +385,9 @@ export default function AdminDashboard() {
                     <thead>
                       <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                         <th className="text-left px-4 sm:px-6 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">Nama</th>
-                        <th className="text-left px-4 sm:px-6 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">NIK</th>
-                        <th className="text-left px-4 sm:px-6 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">No. HP</th>
-                        <th className="text-left px-4 sm:px-6 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">Alamat</th>
+                        <th className="text-left px-4 sm:px-6 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider hidden md:table-cell">NIK</th>
+                        <th className="text-left px-4 sm:px-6 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider hidden md:table-cell">No. HP</th>
+                        <th className="text-left px-4 sm:px-6 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider hidden md:table-cell">Alamat</th>
                         <th className="text-left px-4 sm:px-6 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">Username</th>
                         <th className="text-left px-4 sm:px-6 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">Password</th>
                         <th className="text-left px-4 sm:px-6 py-3.5 font-semibold text-gray-600 text-xs uppercase tracking-wider">Terdaftar</th>
@@ -398,9 +398,9 @@ export default function AdminDashboard() {
                       {userData?.users?.map((u) => (
                         <tr key={u.id} className="hover:bg-primary-50/40 transition-all duration-150 ease-in-out">
                           <td className="px-4 sm:px-6 py-4 whitespace-nowrap font-medium text-gray-900">{u.nama}</td>
-                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-500 font-mono text-xs">{u.nik}</td>
-                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-500">{u.noHp}</td>
-                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-500 max-w-[160px] truncate">{u.alamat}</td>
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-500 font-mono text-xs hidden md:table-cell">{u.nik}</td>
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-500 hidden md:table-cell">{u.noHp}</td>
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-500 max-w-[160px] truncate hidden md:table-cell">{u.alamat}</td>
                           <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-gray-500">{u.username}</td>
                           <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                             {editPass.id === u.id ? (
