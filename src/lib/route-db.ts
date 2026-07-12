@@ -39,25 +39,21 @@ function initFromFiles() {
   const usersFile = path.join(DATA_DIR, 'users.json');
   const adminFile = path.join(DATA_DIR, 'admin.json');
 
-  if (fs.existsSync(queuesFile)) {
+  try {
     globalForData.__queues = JSON.parse(fs.readFileSync(queuesFile, 'utf8'));
-  } else {
-    globalForData.__queues = {
-      date: new Date().toISOString().split('T')[0],
-      counter: 0,
-      queues: [],
-    };
+  } catch {
+    globalForData.__queues = { date: new Date().toISOString().split('T')[0], counter: 0, queues: [] };
   }
 
-  if (fs.existsSync(usersFile)) {
+  try {
     globalForData.__users = JSON.parse(fs.readFileSync(usersFile, 'utf8'));
-  } else {
+  } catch {
     globalForData.__users = [];
   }
 
-  if (fs.existsSync(adminFile)) {
+  try {
     globalForData.__admin = JSON.parse(fs.readFileSync(adminFile, 'utf8'));
-  } else {
+  } catch {
     globalForData.__admin = { username: 'admin', password: 'admin123' };
   }
 }
