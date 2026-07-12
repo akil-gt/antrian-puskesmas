@@ -31,16 +31,6 @@
       "createdAt": "2026-07-12T11:19:39.049Z",
       "calledAt": "2026-07-12T11:59:46.062Z",
       "calledExpired": false
-    },
-    {
-      "id": "1783856069369",
-      "userId": "1783856025563",
-      "nama": "Irfan Efendi",
-      "nomor": "A004",
-      "status": "menunggu",
-      "createdAt": "2026-07-12T11:34:29.369Z",
-      "calledAt": null,
-      "calledExpired": false
     }
   ]
 }
