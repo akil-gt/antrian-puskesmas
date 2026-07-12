@@ -103,6 +103,16 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleResetUserQueue = async (id, nama) => {
+    if (!confirm(`Reset antrian untuk ${nama}? Pasien bisa mengambil antrian baru.`)) return;
+    try {
+      await admin.resetUserQueue(id);
+      setToast({ message: `Antrian ${nama} berhasil direset`, type: 'success' });
+    } catch (err) {
+      setToast({ message: err.message, type: 'error' });
+    }
+  };
+
   const allQueues = queueData?.all || [];
   const filteredQueues = statusFilter === 'all' ? allQueues : allQueues.filter((q) => q.status === statusFilter);
 
@@ -401,9 +411,14 @@ export default function AdminDashboard() {
                             {new Date(u.createdAt).toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' })}
                           </td>
                           <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-right">
-                            <button onClick={() => handleDeleteUser(u.id)} className="text-xs bg-red-100 text-red-600 hover:bg-red-200 font-semibold py-1.5 px-3 rounded-lg transition-all border border-red-200">
-                              Hapus
-                            </button>
+                            <div className="flex justify-end gap-1.5">
+                              <button onClick={() => handleResetUserQueue(u.id, u.nama)} className="text-xs bg-amber-100 text-amber-700 hover:bg-amber-200 font-semibold py-1.5 px-3 rounded-lg transition-all border border-amber-200">
+                                Reset Limit
+                              </button>
+                              <button onClick={() => handleDeleteUser(u.id)} className="text-xs bg-red-100 text-red-600 hover:bg-red-200 font-semibold py-1.5 px-3 rounded-lg transition-all border border-red-200">
+                                Hapus
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}

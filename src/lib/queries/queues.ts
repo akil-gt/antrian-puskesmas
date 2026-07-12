@@ -95,6 +95,15 @@ export async function deleteQueue(id: string): Promise<boolean> {
   return result.affectedRows > 0;
 }
 
+export async function deleteUserTodayQueue(userId: string): Promise<boolean> {
+  const today = getToday();
+  const result = await mutate(
+    'DELETE FROM queues WHERE user_id = ? AND queue_date = ?',
+    [userId, today]
+  );
+  return result.affectedRows > 0;
+}
+
 export async function incrementCounter(): Promise<number> {
   const today = getToday();
   const meta = await queryOne<{ counter: number }>(

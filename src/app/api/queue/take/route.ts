@@ -7,9 +7,9 @@ export async function POST(req: NextRequest) {
   try {
     const user = verifyToken(req);
     
-    const activeQueue = await getQueueByUserId(user.id);
-    if (activeQueue && !['selesai', 'hangus'].includes(activeQueue.status)) {
-      return NextResponse.json({ error: 'Anda masih memiliki antrian aktif' }, { status: 400 });
+    const existingQueue = await getQueueByUserId(user.id);
+    if (existingQueue) {
+      return NextResponse.json({ error: 'Anda sudah mengambil antrian hari ini. Hubungi admin jika ingin mengambil antrian lagi.' }, { status: 400 });
     }
 
     const nomor = await getNextQueueNumber();
