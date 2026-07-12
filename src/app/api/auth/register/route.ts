@@ -1,22 +1,48 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { AuthError } from '@/lib/route-auth';
 import { getUserByUsername, getUserByNIK, createUser } from '@/lib/queries/users';
+import { verifyOtp } from '@/lib/queries/otp';
 import bcrypt from 'bcryptjs';
+import { rateLimitByIp } from '@/lib/rate-limit';
+import { validatePhone, validateNIK, validateUsername, validatePassword, validateNama } from '@/lib/validation';
 
 export async function POST(req: NextRequest) {
   try {
-    const { nama, nik, alamat, noHp, tanggalLahir, username, password } = await req.json();
+    const { allowed } = rateLimitByIp(req, 'register', 5, 60000);
+    if (!allowed) {
+      return NextResponse.json({ error: 'Terlalu banyak permintaan. Coba lagi nanti.' }, { status: 429 });
+    }
 
-    if (!nama || !nik || !alamat || !noHp || !tanggalLahir || !username || !password) {
+    const { nama, nik, alamat, noHp, tanggalLahir, username, password, otp } = await req.json();
+
+    if (!nama || !nik || !alamat || !noHp || !tanggalLahir || !username || !password || !otp) {
       return NextResponse.json({ error: 'Semua field wajib diisi' }, { status: 400 });
     }
 
-    if (password.length < 3) {
-      return NextResponse.json({ error: 'Password minimal 3 karakter' }, { status: 400 });
+    if (!validateNama(nama)) {
+      return NextResponse.json({ error: 'Nama tidak valid' }, { status: 400 });
     }
 
-    if (nik.length < 8) {
-      return NextResponse.json({ error: 'NIK minimal 8 karakter' }, { status: 400 });
+    if (!validateNIK(nik)) {
+      return NextResponse.json({ error: 'NIK harus 16 digit angka' }, { status: 400 });
+    }
+
+    if (!validatePhone(noHp)) {
+      return NextResponse.json({ error: 'Nomor HP tidak valid' }, { status: 400 });
+    }
+
+    if (!validateUsername(username)) {
+      return NextResponse.json({ error: 'Username 3-30 karakter (huruf, angka, underscore)' }, { status: 400 });
+    }
+
+    if (!validatePassword(password)) {
+      return NextResponse.json({ error: 'Password minimal 6 karakter' }, { status: 400 });
+    }
+
+    const phone = noHp.startsWith('0') ? '62' + noHp.slice(1) : noHp;
+    const valid = await verifyOtp(phone, otp);
+    if (!valid) {
+      return NextResponse.json({ error: 'Kode OTP salah atau sudah kedaluwarsa' }, { status: 400 });
     }
 
     const existingUsername = await getUserByUsername(username);

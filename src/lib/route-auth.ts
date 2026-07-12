@@ -1,6 +1,9 @@
 import jwt from 'jsonwebtoken';
 
-const SECRET = process.env.JWT_SECRET || 'puskesmas-tamamaung-secret-2026';
+const SECRET: string = process.env.JWT_SECRET!;
+if (!SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
 
 interface TokenPayload {
   id: string;

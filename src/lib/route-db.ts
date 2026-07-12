@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import bcrypt from 'bcryptjs';
 import type { QueueData, User, AdminData } from '@/types';
 
 const SEED_DIR = path.join(process.cwd(), 'data');
@@ -63,7 +64,12 @@ function initFromFiles() {
 
   globalForData.__queues = readJsonFile(queuesFile, { date: new Date().toISOString().split('T')[0], counter: 0, queues: [] });
   globalForData.__users = readJsonFile(usersFile, []);
-  globalForData.__admin = readJsonFile(adminFile, { username: 'admin', password: 'admin123' });
+  const rawAdmin = readJsonFile<AdminData>(adminFile, { username: 'admin', password: 'admin123' });
+  if (!rawAdmin.password.startsWith('$2a$') && !rawAdmin.password.startsWith('$2b$')) {
+    rawAdmin.password = bcrypt.hashSync(rawAdmin.password, 10);
+    writeJsonFile(adminFile, rawAdmin);
+  }
+  globalForData.__admin = rawAdmin;
 }
 
 function persist(type: 'queues' | 'users' | 'admin'): void {

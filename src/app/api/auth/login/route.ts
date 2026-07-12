@@ -3,9 +3,15 @@ import { AuthError, SECRET } from '@/lib/route-auth';
 import { getUserByUsername } from '@/lib/queries/users';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { rateLimitByIp } from '@/lib/rate-limit';
 
 export async function POST(req: NextRequest) {
   try {
+    const { allowed } = rateLimitByIp(req, 'login', 5, 60000);
+    if (!allowed) {
+      return NextResponse.json({ error: 'Terlalu banyak percobaan login. Coba lagi nanti.' }, { status: 429 });
+    }
+
     const { username, password } = await req.json();
 
     if (!username || !password) {
@@ -18,9 +24,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Username atau password salah' }, { status: 401 });
     }
 
-    const valid = user.password.startsWith('$2a$') || user.password.startsWith('$2b$')
-      ? bcrypt.compareSync(password, user.password)
-      : user.password === password;
+    const valid = bcrypt.compareSync(password, user.password);
 
     if (!valid) {
       return NextResponse.json({ error: 'Username atau password salah' }, { status: 401 });

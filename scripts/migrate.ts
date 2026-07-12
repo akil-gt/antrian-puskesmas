@@ -77,6 +77,19 @@ async function migrate() {
     )
   `);
 
+  await connection.execute(`
+    CREATE TABLE IF NOT EXISTS otp_codes (
+      id VARCHAR(36) PRIMARY KEY,
+      phone VARCHAR(20) NOT NULL,
+      code VARCHAR(6) NOT NULL,
+      expires_at DATETIME NOT NULL,
+      used TINYINT(1) DEFAULT 0,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      INDEX idx_phone (phone),
+      INDEX idx_phone_code (phone, code)
+    )
+  `);
+
   // Seed admin
   const hashed = await bcrypt.hash('admin123', 10);
   await connection.execute(

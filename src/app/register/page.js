@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -11,20 +11,62 @@ export default function RegisterPage() {
   const [form, setForm] = useState({
     nama: '', nik: '', alamat: '', noHp: '', tanggalLahir: '', username: '', password: '',
   });
+  const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpCountdown, setOtpCountdown] = useState(0);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
+  const countdownRef = useRef(null);
   const router = useRouter();
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
+  const startCountdown = () => {
+    setOtpCountdown(60);
+    clearInterval(countdownRef.current);
+    countdownRef.current = setInterval(() => {
+      setOtpCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(countdownRef.current);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const handleSendOtp = async () => {
+    if (!form.noHp || form.noHp.length < 10) {
+      setError('Nomor HP tidak valid');
+      return;
+    }
+    setError('');
+    setOtpLoading(true);
+    try {
+      await auth.sendOtp(form.noHp);
+      setOtpSent(true);
+      startCountdown();
+      setToast({ message: 'Kode OTP telah dikirim ke nomor HP Anda', type: 'success' });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!otp) {
+      setError('Masukkan kode OTP terlebih dahulu');
+      return;
+    }
     setError('');
     setLoading(true);
 
     try {
-      await auth.register(form);
+      await auth.register({ ...form, otp });
       setToast({ message: 'Registrasi berhasil! Mengalihkan ke login...', type: 'success' });
       setTimeout(() => router.push('/login'), 1500);
     } catch (err) {
@@ -36,7 +78,6 @@ export default function RegisterPage() {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center px-4 py-8">
-      {/* Subtle background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" />
         <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-secondary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" />
@@ -90,13 +131,40 @@ export default function RegisterPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="label">No. HP</label>
-                    <input type="text" name="noHp" className="input-field" value={form.noHp} onChange={handleChange} required placeholder="08xxxxxxxxxx" />
+                    <div className="flex gap-2">
+                      <input type="text" name="noHp" className="input-field flex-1" value={form.noHp} onChange={handleChange} required placeholder="08xxxxxxxxxx" disabled={otpSent} />
+                      <button type="button" onClick={handleSendOtp} disabled={otpLoading || otpCountdown > 0}
+                        className="shrink-0 bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-all">
+                        {otpLoading ? (
+                          <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                        ) : otpCountdown > 0 ? (
+                          `${otpCountdown}s`
+                        ) : otpSent ? (
+                          'Kirim Ulang'
+                        ) : (
+                          'Kirim OTP'
+                        )}
+                      </button>
+                    </div>
                   </div>
                   <div>
                     <label className="label">Tanggal Lahir</label>
                     <input type="date" name="tanggalLahir" className="input-field" value={form.tanggalLahir} onChange={handleChange} required />
                   </div>
                 </div>
+
+                {otpSent && (
+                  <div className="animate-slide-up">
+                    <label className="label">Kode OTP</label>
+                    <div className="flex gap-2 items-center">
+                      <input type="text" name="otp" className="input-field flex-1 text-center tracking-[0.5em] font-mono text-lg" value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="000000" maxLength={6} autoFocus />
+                      {otp.length === 6 && (
+                        <svg className="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-gray-400 mt-1">Kode dikirim via SMS. Cek inbox HP Anda.</p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -121,7 +189,7 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            <button type="submit" disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2">
+            <button type="submit" disabled={loading || !otpSent || otp.length !== 6} className="btn-primary w-full flex items-center justify-center gap-2">
               {loading ? (
                 <>
                   <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
