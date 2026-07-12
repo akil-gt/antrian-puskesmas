@@ -1,0 +1,46 @@
+{
+  "date": "2026-07-12",
+  "counter": 4,
+  "queues": [
+    {
+      "id": "1783840389448",
+      "userId": "1783840374058",
+      "nama": "syahrir",
+      "nomor": "A001",
+      "status": "selesai",
+      "createdAt": "2026-07-12T07:13:09.448Z",
+      "calledAt": null,
+      "calledExpired": false
+    },
+    {
+      "id": "1783850285255",
+      "userId": "1783850174956",
+      "nama": "Dwisuci Ramadhani sam",
+      "nomor": "A002",
+      "status": "sedang_berobat",
+      "createdAt": "2026-07-12T09:58:05.255Z",
+      "calledAt": "2026-07-12T11:22:36.710Z",
+      "calledExpired": false
+    },
+    {
+      "id": "1783855179049",
+      "userId": "1783792613288",
+      "nama": "Muh. Akil Gibran Akbari",
+      "nomor": "A003",
+      "status": "sedang_berobat",
+      "createdAt": "2026-07-12T11:19:39.049Z",
+      "calledAt": "2026-07-12T11:59:46.062Z",
+      "calledExpired": false
+    },
+    {
+      "id": "1783856069369",
+      "userId": "1783856025563",
+      "nama": "Irfan Efendi",
+      "nomor": "A004",
+      "status": "menunggu",
+      "createdAt": "2026-07-12T11:34:29.369Z",
+      "calledAt": null,
+      "calledExpired": false
+    }
+  ]
+}

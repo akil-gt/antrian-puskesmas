@@ -1,0 +1,46 @@
+[
+  {
+    "id": "1783792613288",
+    "nama": "Muh. Akil Gibran Akbari",
+    "nik": "123456789864",
+    "alamat": "Villa Mutiara Jelita 2 No. 22",
+    "noHp": "085824564045",
+    "tanggalLahir": "2001-11-06",
+    "username": "Akil061101",
+    "password": "Akil123",
+    "createdAt": "2026-07-11T17:56:53.289Z"
+  },
+  {
+    "id": "1783840374058",
+    "nama": "syahrir",
+    "nik": "08723741842",
+    "alamat": "pettarani",
+    "noHp": "08343615385",
+    "tanggalLahir": "2026-07-12",
+    "username": "syahrir",
+    "password": "123",
+    "createdAt": "2026-07-12T07:12:54.058Z"
+  },
+  {
+    "id": "1783850174956",
+    "nama": "Dwisuci Ramadhani sam",
+    "nik": "12345678765432",
+    "alamat": "Zafran Regency G.20",
+    "noHp": "085824564045",
+    "tanggalLahir": "2003-11-10",
+    "username": "Dwisuci03",
+    "password": "$2a$10$RU5mAwIsIyNkl15um3tW5uxaHzVGBVbYu4aQ4doq5A9lkVxPBxV7.",
+    "createdAt": "2026-07-12T09:56:14.958Z"
+  },
+  {
+    "id": "1783856025563",
+    "nama": "Irfan Efendi",
+    "nik": "123456787654",
+    "alamat": "Pettarani 2 no.22",
+    "noHp": "12345678987654",
+    "tanggalLahir": "2001-07-12",
+    "username": "ippang",
+    "password": "123",
+    "createdAt": "2026-07-12T11:33:45.563Z"
+  }
+]
