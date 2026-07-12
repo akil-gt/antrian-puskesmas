@@ -4,7 +4,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Navbar from '@/components/Navbar';
 import StatsGrid from '@/components/StatsGrid';
-import InstallBanner from '@/components/InstallBanner';
 import { usePolling } from '@/hooks/usePolling';
 import { queue } from '@/lib/api';
 
@@ -147,8 +146,6 @@ export default function HomePage() {
           </div>
         </div>
       </footer>
-
-      <InstallBanner />
     </div>
   );
 }
