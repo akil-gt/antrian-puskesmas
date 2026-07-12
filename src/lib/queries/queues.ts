@@ -60,6 +60,14 @@ export async function getMonitorData(): Promise<MonitorResponse> {
   };
 }
 
+export async function getQueueById(id: string): Promise<QueueEntry | null> {
+  return queryOne<QueueEntry>(
+    `SELECT id, user_id as userId, nama, nomor, status, created_at as createdAt, called_at as calledAt
+     FROM queues WHERE id = ?`,
+    [id]
+  );
+}
+
 export async function getQueueByUserId(userId: string): Promise<QueueEntry | null> {
   const today = getToday();
   return queryOne<QueueEntry>(

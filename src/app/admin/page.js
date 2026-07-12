@@ -93,6 +93,16 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleRequeue = async (id, nama) => {
+    if (!confirm(`Ambil ulang antrian untuk ${nama}? Pasien akan mendapatkan nomor antrian baru.`)) return;
+    try {
+      const result = await admin.requeue(id);
+      setToast({ message: result.message, type: 'success' });
+    } catch (err) {
+      setToast({ message: err.message, type: 'error' });
+    }
+  };
+
   const handleDeleteUser = async (id) => {
     if (!confirm('Yakin ingin menghapus pasien ini? Semua data pasien akan hilang permanen.')) return;
     try {
@@ -257,6 +267,11 @@ export default function AdminDashboard() {
                               {q.status === 'sedang_berobat' && (
                                 <button onClick={() => handleStatus(q.id, 'selesai')} className="text-xs bg-emerald-100 text-emerald-700 hover:bg-emerald-200 font-semibold py-1.5 px-3 rounded-lg transition-all shadow-sm">
                                   Selesai
+                                </button>
+                              )}
+                              {q.status === 'hangus' && (
+                                <button onClick={() => handleRequeue(q.id, q.nama)} className="text-xs bg-violet-100 text-violet-700 hover:bg-violet-200 font-semibold py-1.5 px-3 rounded-lg transition-all shadow-sm">
+                                  Ambil Ulang
                                 </button>
                               )}
                               {(q.status === 'menunggu' || q.status === 'dipanggil') && (
