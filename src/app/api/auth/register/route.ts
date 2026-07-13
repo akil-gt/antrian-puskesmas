@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { AuthError } from '@/lib/route-auth';
 import { getUserByUsername, getUserByNIK, createUser } from '@/lib/queries/users';
-import { verifyOtp } from '@/lib/queries/otp';
 import bcrypt from 'bcryptjs';
 import { rateLimitByIp } from '@/lib/rate-limit';
 import { validatePhone, validateNIK, validateUsername, validatePassword, validateNama } from '@/lib/validation';
@@ -13,9 +12,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Terlalu banyak permintaan. Coba lagi nanti.' }, { status: 429 });
     }
 
-    const { nama, nik, alamat, noHp, tanggalLahir, username, password, otp } = await req.json();
+    const { nama, nik, alamat, noHp, tanggalLahir, username, password } = await req.json();
 
-    if (!nama || !nik || !alamat || !noHp || !tanggalLahir || !username || !password || !otp) {
+    if (!nama || !nik || !alamat || !noHp || !tanggalLahir || !username || !password) {
       return NextResponse.json({ error: 'Semua field wajib diisi' }, { status: 400 });
     }
 
@@ -37,12 +36,6 @@ export async function POST(req: NextRequest) {
 
     if (!validatePassword(password)) {
       return NextResponse.json({ error: 'Password minimal 6 karakter' }, { status: 400 });
-    }
-
-    const phone = noHp.startsWith('0') ? '62' + noHp.slice(1) : noHp;
-    const valid = await verifyOtp(phone, otp);
-    if (!valid) {
-      return NextResponse.json({ error: 'Kode OTP salah atau sudah kedaluwarsa' }, { status: 400 });
     }
 
     const existingUsername = await getUserByUsername(username);

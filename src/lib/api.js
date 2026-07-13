@@ -35,7 +35,6 @@ export const auth = {
   login: (credentials) => request('/auth/login', { method: 'POST', body: credentials }),
   register: (data) => request('/auth/register', { method: 'POST', body: data }),
   adminLogin: (credentials) => request('/auth/admin/login', { method: 'POST', body: credentials }),
-  sendOtp: (noHp) => request('/auth/send-otp', { method: 'POST', body: { noHp } }),
 };
 
 export const queue = {

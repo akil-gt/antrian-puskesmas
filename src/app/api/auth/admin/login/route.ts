@@ -14,19 +14,26 @@ export async function POST(req: NextRequest) {
 
     const { username, password } = await req.json();
 
+    if (!username || !password) {
+      return NextResponse.json({ error: 'Username dan password wajib diisi' }, { status: 400 });
+    }
+
     const valid = await verifyAdmin(username, password);
 
     if (!valid) {
+      console.warn(`Admin login failed: invalid credentials for username="${username}"`);
       return NextResponse.json({ error: 'Username atau password admin salah' }, { status: 401 });
     }
 
     const token = jwt.sign({ username, nama: 'Admin', role: 'admin' }, SECRET, { expiresIn: '24h' });
 
+    console.log(`Admin login success: username="${username}"`);
     return NextResponse.json({ message: 'Login admin berhasil', token }, { status: 200 });
   } catch (err) {
     if (err instanceof AuthError) {
       return NextResponse.json({ error: err.message }, { status: err.status });
     }
+    console.error('Admin login error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
